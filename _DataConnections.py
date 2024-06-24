@@ -1,10 +1,10 @@
 
 
-!pip install --quiet openml
 import openml
-import numpy as np
 import pandas as pd
 from sklearn.datasets import fetch_openml
+
+#DATA FROM OPENML
 
 #this will display a list of available datasets for download
 availDatasets = openml.datasets.list_datasets(output_format='dataframe')
@@ -16,6 +16,12 @@ queriesDS = fetch_openml(data_id=41701, as_frame=True, parser='auto')
 print(queriesDS.DESCR)
 print(queriesDS.feature_names)
 print(queriesDS.target_names)
+
+#get dataset
+dataset = queriesDS.data
+dataset
+
+#DATA FROM ODBC
 
 from turbodbc import connect, make_options
 options = make_options(autocommit=True)
@@ -34,6 +40,9 @@ df = pd.DataFrame(df)
 df.rename(columns={
     0: 'col1', 1: 'col2', 2: 'col3', 3: 'col4'
     }, inplace=True)
+
+
+#DATA FROM SQL
 
 import urllib
 from sqlalchemy import create_engine
@@ -66,14 +75,12 @@ sql_engine = sqlalchemy.create_engine(conn_str, echo=True, fast_executemany = Tr
 conn = sql_engine.connect()
 df.to_sql(name = "table",if_exists="append",index=False, schema='dbo',chunksize=100000,con=conn)
 
+#DATA FROM BUCKET
 
 import io
-import os
 from azure.storage.blob import BlobServiceClient, ContainerClient
 import zipfile
-import time
 import pandas as pd
-import numpy
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sourceconstring = "BlobEndpoint=https://xxxxxx.blob.core.windows.net/;QueueEndpoint=https://xxxxx.queue.core.windows.net/;FileEndpoint=https://xxxxx.file.core.windows.net/;TableEndpoint=https://xxxxx.table.core.windows.net/;SharedAccessSignature=sv=kkkkkkkkkkkkkkkkk"
@@ -169,11 +176,11 @@ for chunk in chunks:
     # process task results as they are available
     futured = as_completed(futures)
 
+#DATA FROM COSMOS
 
 from azure.cosmos import exceptions, CosmosClient, PartitionKey
 from azure.cosmos import cosmos_client
 import pandas as pd
-import numpy as np
 import json
 
 url = "https://location:443/"

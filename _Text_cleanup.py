@@ -3,6 +3,14 @@ pd.options.mode.chained_assignment = None  # default='warn'
 from io import StringIO
 from html.parser import HTMLParser
 import re
+from nltk.corpus import stopwords
+nltk.download('stopwords')
+nltkstop = stopwords.words('english')
+
+from nltk.tokenize import word_tokenize
+from nltk.stem.snowball import SnowballStemmer
+nltk.download('punkt')
+snow = SnowballStemmer(language='english')
 
 #load data
 maindataset = pd.read_csv("Restaurant_reviews.csv")
@@ -81,5 +89,28 @@ def preprepare(eingang):
 maindataset["NLPtext"] = maindataset["Review"]
 maindataset["NLPtext"] = maindataset["NLPtext"].str.lower()
 maindataset["NLPtext"] = maindataset["NLPtext"].apply(lambda x: preprepare(str(x)))
+
+#stop words remove
+moviestbl["text"] = moviestbl["text"].apply(lambda x: ' '.join([word for word in x.split() if word not in (nltkstop)]))
+
+#stem
+def steming(sentence):
+ words = word_tokenize(sentence)
+ singles = [snow.stem(plural) for plural in words]
+ oup = ' '.join(singles)
+ return oup
+maindataset["NLPtext"] = maindataset["NLPtext"].apply(lambda x: steming(x))
+
+#format a dictionary and replace words
+dictionary = {row['word']: row['replacement'] for index, row in dictionary.iterrows()}
+def replace_words(tt, lookp_dict):
+ temp = tt.split()
+ res = []
+ for wrd in temp:
+  res.append(lookp_dict.get(wrd, wrd))
+ res = ' '.join(res)
+ return res
+maindataset["NLPtext"] = maindataset["NLPtext"].apply(lambda x: replace_words(str(x), dictionary))
+
 
 
