@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
@@ -15,12 +14,8 @@ from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import StackingClassifier
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import RocCurveDisplay
 from sklearn.metrics import DetCurveDisplay
-from sklearn.metrics import classification_report
-from sklearn.utils import resample
 import joblib
 import matplotlib.pyplot as plt
 
