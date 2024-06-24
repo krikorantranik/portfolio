@@ -1,30 +1,8 @@
-import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 from io import StringIO
 from html.parser import HTMLParser
 import re
-import nltk
-from nltk.tokenize import word_tokenize
-nltk.download('punkt')
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import seaborn as sns
-import warnings
-import tensorflow as tf
-import seaborn as sns
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.metrics import classification_report
-from sklearn.utils import resample
-#does not come in Google Notebooks
-!pip install sentence-transformers
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-
 
 #load data
 maindataset = pd.read_csv("Restaurant_reviews.csv")
