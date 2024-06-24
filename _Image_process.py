@@ -51,3 +51,35 @@ imageC = cv2.cvtColor(imageC, cv2.COLOR_BGR2HSV)
 cv2.drawContours(imageC, cleancontours, -1, (0,255,0), 3)
 cv2_imshow(imageC)
 
+#
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import Subset
+from torch.utils.data import DataLoader
+from torch.nn.modules.flatten import Flatten
+import time, copy
+import matplotlib.pyplot as plt
+import torchvision as tv
+import pandas as pd
+import torchvision.utils as vutils
+
+# this trainsformation will load and fomat the images into numpy objects
+image_size = 64
+transform = tv.transforms.Compose([
+                               tv.transforms.Resize(image_size),
+                               tv.transforms.CenterCrop(image_size),
+                               tv.transforms.ToTensor(),
+                               tv.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                           ])
+
+images_train = tv.datasets.GTSRB('./data/images', split = "train", transform =transform, download=True)
+len(images_train)
+
+
+# Visualization function borrowed from: https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
+plt.figure(figsize=(8,10))
+plt.axis("off")
+plt.title("Training Images")
+plt.imshow(np.transpose(vutils.make_grid(smpl, padding=2, normalize=True),(1,2,0)))
+
