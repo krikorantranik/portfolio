@@ -204,4 +204,123 @@ dataf = pd.concat([dataf, df2], axis=1)
 
 
 
+#AWS (Athena)
+
+import pandas as pd 
+import boto3 as aws 
+import os 
+import awswrangler as wr
+import pyspark.pandas as ps
+from re import finditer
+
+os.environ['AWS_ACCESS_KEY_ID']=''
+os.environ['AWS_SECRET_ACCESS_KEY']=''
+os.environ['AWS_DEFAULT_REGION']='us-east-1'
+os.environ['AWS_SESSION_TOKEN']=''
+
+#query
+class QueryAthena:
+    def __init__(self, query):
+        self.database = '' 
+        self.folder = '/'
+        self.bucket = ''
+        self.s3_output = 's3://' + self.bucket + '/' + self.folder
+        self.aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+        self.aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        self.region_name = os.environ.get('AWS_DEFAULT_REGION')
+        self.aws_session_token = os.environ.get('AWS_SESSION_TOKEN')
+        self.query = query
+
+    def run_query(self):
+        boto3_session = aws.Session(aws_access_key_id=self.aws_access_key_id, 
+                                    aws_secret_access_key=self.aws_secret_access_key,
+                                    aws_session_token=self.aws_session_token,
+                                    region_name=self.region_name)
+        df = wr.athena.read_sql_query(sql=self.query, database=self.database,ctas_approach=False, s3_output=self.s3_output)
+        return df
+
+#create
+class CreateAthena:
+    def __init__(self, table, dataf, metho):
+        self.database = 'legion_iceberg' 
+        self.folder = table + '/'
+        self.bucket = 'use1-stage-bd-devops-legion-query'
+        self.s3_output = 's3://' + self.bucket + '/' + self.folder
+        self.aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+        self.aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        self.region_name = os.environ.get('AWS_DEFAULT_REGION')
+        self.aws_session_token = os.environ.get('AWS_SESSION_TOKEN')
+        self.tbl = table
+        self.dd = dataf
+        self.meth = metho
+    def exec(self):
+        boto3_session = aws.Session(aws_access_key_id=self.aws_access_key_id, 
+                                    aws_secret_access_key=self.aws_secret_access_key,
+                                    aws_session_token=self.aws_session_token,
+                                    region_name=self.region_name)
+        res = wr.s3.to_parquet(
+            df=self.dd,
+            path=self.s3_output,
+            dataset=True,
+            database=self.database,
+            table=self.tbl,
+            mode=self.meth,
+            )
+        return res
+
+#AWS clients
+aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+region_name = os.environ.get('AWS_DEFAULT_REGION')
+aws_session_token = os.environ.get('AWS_SESSION_TOKEN')
+athena = aws.client('athena', aws_access_key_id=aws_access_key_id, 
+                                    aws_secret_access_key=aws_secret_access_key,
+                                    aws_session_token=aws_session_token,
+                                    region_name=region_name)
+
+glue = aws.client('glue', aws_access_key_id=aws_access_key_id, 
+                                    aws_secret_access_key=aws_secret_access_key,
+                                    aws_session_token=aws_session_token,
+                                    region_name=region_name)
+
+#get db list
+dbs = glue.get_databases()
+dblist = []
+for k, v in dbs.items():
+    if (k=='DatabaseList'):
+        for db in v:
+            for k2, v2 in db.items():
+                if (k2=='Name'):
+                    dblist.append(v2)
+dblist
+
+#get tables
+a = []
+
+for dbname in dblist:
+    response = glue.get_tables(DatabaseName=dbname)
+    for k, v in response.items():
+        if (k=='TableList'):
+            for tbl in v:
+                path = '?'
+                table = '?'
+                for k2, v2 in tbl.items():
+                    if (k2=='Name'):
+                        table=v2
+                    if (k2=='StorageDescriptor'):
+                        for k3, v3 in v2.items():
+                            if (k3=='Location'):
+                                path = v3
+                d = {'database':[dbname], 'table': [table], 'path': [path]}
+                tbldf = pd.DataFrame(d)
+                a.append(tbldf)
+tbldf
+
+
+
+
+
+
+
+
 
