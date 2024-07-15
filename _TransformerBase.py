@@ -11,7 +11,7 @@ import copy
 
 sizeTrain = 10000
 sizeVandT = 500
-batch_size=10
+batch_size=1
 
 newds = newds.sample(frac=1).reset_index(drop=True)
 train_sentences = newds.newtext[:sizeTrain].reset_index(drop=True)
